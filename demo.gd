@@ -57,7 +57,7 @@ func _process(delta):
 		if (truck_progress > total_distance):
 			truck_progress = total_distance
 			is_truck_moving = false
-		var truck_location: Vector2 = dubins_path.shortest_path.get_point_at_offset(truck_progress)
+		var truck_location: Vector2 = dubins_path.shortest_path.get_position_at_offset(truck_progress)
 		truck.position = truck_location
 		var truck_rotation: float = dubins_path.shortest_path.get_angle_at_offset(truck_progress)
 		truck.rotation = add_truck_rotation_offset(truck_rotation)
