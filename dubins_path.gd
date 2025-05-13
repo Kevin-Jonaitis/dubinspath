@@ -8,7 +8,7 @@ extends Resource
 
 ## We store points for drawing, but we use formulas to determine the position along the curve
 ## Because of this, arcs will have many points, while the straight line segments will only have 2(start and end)
-class_name DubinPath
+class_name DubinsPath
 
 var name: String
 var length: float = 0
@@ -195,7 +195,7 @@ func get_offset_to_point(point_index: int) -> float:
 	return segment_distance + running_distance
 
 # Split this path at the given point index into 2 dubin paths
-func split_at_point_index(point_index: int) -> Array[DubinPath]:
+func split_at_point_index(point_index: int) -> Array[DubinsPath]:
 	if point_index < 0 or point_index >= _points.size():
 		return []  # Return an empty array if the index is out of bounds
 
@@ -232,8 +232,8 @@ func split_at_point_index(point_index: int) -> Array[DubinPath]:
 
 
 	# Create new DubinPath instances
-	var first_path: DubinPath = DubinPath.new(name + "_first_half_splt", first_segments, start_theta, get_angle_at_point_index(point_index))
-	var second_path: DubinPath = DubinPath.new(name + "_second_half_splt", second_segments, get_angle_at_point_index(point_index), end_theta)
+	var first_path: DubinsPath = DubinsPath.new(name + "_first_half_splt", first_segments, start_theta, get_angle_at_point_index(point_index))
+	var second_path: DubinsPath = DubinsPath.new(name + "_second_half_splt", second_segments, get_angle_at_point_index(point_index), end_theta)
 
 	return [first_path, second_path]
 
@@ -266,9 +266,9 @@ class Line extends Segment:
 
 	func calculate_points() -> void:
 		var direction: Vector2 = (end - start).normalized()
-		var total_points: int = max(2, ceil(length / DubinPath.bake_interval))
+		var total_points: int = max(2, ceil(length / DubinsPath.bake_interval))
 		for i: int in range(total_points):
-			var point: Vector2 = start + direction * (i * DubinPath.bake_interval)
+			var point: Vector2 = start + direction * (i * DubinsPath.bake_interval)
 			points.append(point)
 		points.append(end) # make sure we always have the end point
 		pass
@@ -308,7 +308,7 @@ class Arc extends Segment:
 			
 	func calculate_points_on_arc() -> PackedVector2Array:
 		var temp_points: PackedVector2Array
-		var num_of_points: int = max(2, ceil(length / DubinPath.bake_interval)) #always have at least 2 points on the arc
+		var num_of_points: int = max(2, ceil(length / DubinsPath.bake_interval)) #always have at least 2 points on the arc
 		var total_theta: float = end_theta - start_theta
 		var theta_slice: float = total_theta / (num_of_points - 1) # Adjust to ensure the last point is included
 		for i: int in range(num_of_points):

@@ -1,22 +1,19 @@
-extends Node2D ## THIS SHOULD NOT BE A NODE. It's just a data countainer, so we should use resource? or refcounted mayBe?
-# We need to fix this so we're not drawing on the node
-class_name DubinPath2D
+extends Node2D
+class_name DubinsPath2D
 
 var drawableFunctionsToCallLater: Array[Callable] = []
-var shortest_path: DubinPath
-# Should probably clear this once the shortest path is found
-# Maybe can clear it when the user isn't asking to draw all the paths
-var paths: Array[DubinPath] = []
+var shortest_path: DubinsPath
+var paths: Array[DubinsPath] = []
 
 ## Use images here point names and thetas refererd to:
 ## https://www.habrador.com/tutorials/unity-dubins-paths/2-basic-dubins-paths/
 
-func compute_dubin_paths(start_pos: Vector2, start_angle: float, end_pos: Vector2, end_angle: float, min_turn_radius: float) -> Array[DubinPath]:
+func compute_dubin_paths(start_pos: Vector2, start_angle: float, end_pos: Vector2, end_angle: float, min_turn_radius: float) -> Array[DubinsPath]:
 	if start_pos == end_pos and Utils.check_angle_matches(start_angle,end_angle):
 		return []
 	return DubinsPathMath.compute_dubins_paths(start_pos, start_angle, end_pos, end_angle, min_turn_radius)
 
-## Maybe should store passed in variables?
+
 func calculate_and_draw_paths(start_pos: Vector2, start_angle: float, end_pos: Vector2, end_angle: float, min_turn_radius: float, draw_paths: bool) -> bool:
 	# If the start and end are the same, we don't need to move at all. Short-circuit everything. The shortest
 	# path is standing still. If you really want to calculate this path, just draw a circle(in your perferred direction)
@@ -48,7 +45,7 @@ func calculate_and_draw_paths(start_pos: Vector2, start_angle: float, end_pos: V
 func draw_dubin_paths() -> void:
 	var path_colors: Array[Color] = [Color.PURPLE, Color.AQUA, Color.BLACK, Color.YELLOW, Color.ORANGE, Color.GREEN]
 	var color_index: int = 0;
-	for path: DubinPath in paths:
+	for path: DubinsPath in paths:
 		draw_path(path, path_colors[color_index])
 		color_index += 1
 
@@ -56,7 +53,7 @@ func clear_drawables() -> void:
 	drawableFunctionsToCallLater.clear()
 	queue_redraw()
 
-func draw_path(path: DubinPath, color: Color) -> void:
+func draw_path(path: DubinsPath, color: Color) -> void:
 	if (path.get_points().size() < 2):
 		print("WE HAVE TOO SHORT OF A PATH")
 	drawableFunctionsToCallLater.append(

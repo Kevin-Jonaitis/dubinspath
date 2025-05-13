@@ -2,7 +2,7 @@
 
 [ext_resource type="Texture2D" uid="uid://bq36cu4buegb4" path="res://backgrounddetailed1.png" id="1_5hfv0"]
 [ext_resource type="Script" uid="uid://ck3uhxf358yw5" path="res://demo.gd" id="1_m0rpm"]
-[ext_resource type="Script" uid="uid://dmix8edsgtxud" path="res://dubins_path_2d.gd" id="2_0bhed"]
+[ext_resource type="Script" uid="uid://dmix8edsgtxud" path="res://dubin_path_2d.gd" id="2_0bhed"]
 [ext_resource type="Texture2D" uid="uid://d4gykfsq2edw0" path="res://car-truck3.png" id="4_c6xj6"]
 
 [node name="Demo" type="Node2D"]
@@ -15,7 +15,7 @@ offset_bottom = 4246.0
 texture = ExtResource("1_5hfv0")
 stretch_mode = 1
 
-[node name="DubinsPath2D" type="Node2D" parent="."]
+[node name="DubinPath2D" type="Node2D" parent="."]
 script = ExtResource("2_0bhed")
 metadata/_custom_type_script = "uid://dmix8edsgtxud"
 

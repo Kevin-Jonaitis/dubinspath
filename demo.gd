@@ -1,8 +1,8 @@
 ## Demo for dubins path. The "white" line represents the shortest path. All the other colored lines represent possible dubins paths that are longer than the shortest path.
-
+## We also draw red/blue circles at the "tangents" of the start and end points, to visualize how to calculate the dubins path better.
 extends Node2D
 
-@onready var dubins_path: DubinPath2D = $DubinPath2D
+@onready var dubins_path: DubinsPath2D = $DubinsPath2D
 @onready var truck: Sprite2D = $Truck
 
 var start_mouse_drag: bool = false
