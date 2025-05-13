@@ -1,0 +1,1 @@
+To use this code, take this project and put it under the addons folder in your project. You can then use a DubinsPath2D node in your tree, or call DubinsPathMath.compute_dubins_paths to create a dubins path directly. Run the demo project(and click/drag the mouse to move the truck) to see it in action.

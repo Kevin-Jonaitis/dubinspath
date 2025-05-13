@@ -1,30 +1,19 @@
 extends Resource
 
 ## We store points for drawing, but we use formulas to determine the position along the curve
-## Because of this, arcs will have many points, while the straight line segments will only have 2(start and end)
+# DO not use the points for progress tracking, as they can be unevenly spaced near the boundaries of the arcs/lines
 class_name DubinsPath
 
 var name: String
 var length: float = 0
 var segments: Array[Segment]
-## Points to draw the path. Note that they are evenly spaced on
-## arcs, but there are only 2 points for straight lines. So this should be used
-## in drawing functions only, not for progress capture. To get progress, use
-## get_position_at_offset
 
-# Define a small epsilon value for tolerance
-# Vector2.angle() uses (I believe) floats, while atan2() uses doubles percison
-# to account for this, don't be very percise when checking if a length is more than 0
-# because inconsistencies have been introduced by the different precisions
-
-# This works great with a value of 20, if we were to use that for simply collision boxes
-# and snapping points
+# How far apart the points should be for drawing
 static var bake_interval: float = 0.5
 
-const EPSILON: float = 1e-4
-var calcualtedPoints: bool = false
-# use get_points()
-
+## Points to draw the path. Note that they are not evenly spaced at intersections. So this should be used
+## in drawing functions only, not for progress capture. To get progress, use
+## get_position_at_offset
 var _points: Array[Vector2] = []
 # Dumb way to figure out which segment a point is a part of. 
 # We don't know because points sometimes overlap in segments and we filter them out in the
@@ -40,37 +29,37 @@ var end_theta: float
 func _init(name_: String, _segments: Array[Segment], start_theta_: float, end_theta_: float) -> void:
 	self.name = name_
 	self.bake_interval = bake_interval
-	self.segments = filter_segments(_segments)
+	self.segments = _filter_segments(_segments)
 	for segment: Segment in segments:
 		length += segment.length
 	self.start_theta = start_theta_
 	self.end_theta = end_theta_
-	calculate_points()
+	_calculate_points()
+
+
+###############################################################################
+## PUBLIC API
+###############################################################################
+
+# Given an offset(in pixels) from the start of the path, return the coordinates on the path at that offset
+func get_position_at_offset(offset: float) -> Vector2:
+	if offset <= 0:
+		return _points[0]
+	if offset >= length:
+		return _points[-1]
+		
+	var current_length: float = 0
+	for segment: Segment in segments:
+		if current_length + segment.length >= offset:
+			var segment_offset: float = offset - current_length
+			if segment is Line:
+				return segment.get_position_at_offset(segment_offset)
+			elif segment is Arc:
+				return segment.get_position_at_offset(segment_offset)
+		current_length += segment.length
 	
-func get_points() -> Array[Vector2]:
-	return _points
+	return _points[-1]
 
-func get_endpoints_and_directions() -> Array[Array]:
-	return [[_points[0], start_theta], [_points[-1], end_theta]]
-
-func calculate_points() -> void:
-	for segment_index: int in range(segments.size()):
-		var segment: Segment = segments[segment_index]
-		if segment is Line:
-			for point: Vector2 in segment.points:
-				add_point_if_unique(point, segment_index)
-		elif segment is Arc:
-			for point: Vector2 in segment.points:
-				add_point_if_unique(point, segment_index)
-
-## Prevents two of the same point from being added to the 
-## points array. This can happen on the boundary of two segments
-func add_point_if_unique(point: Vector2, segment_index: int) -> void:
-	if _points.is_empty() or not _points[-1].is_equal_approx(point):
-		_points.append(point)
-		segment_index_for_point.append(segment_index)
-	else:
-		pass # For breakpointing
 
 # Get the angle(in radians) at a given offset(in pixels) from the start of the path
 func get_angle_at_offset(offset: float) -> float:
@@ -94,38 +83,47 @@ func get_angle_at_offset(offset: float) -> float:
 	assert(false, "This should never happen.")
 	return 0.0
 
-# Given an offset(in pixels) from the start of the path, return the coordinates on the path at that offset
-func get_position_at_offset(offset: float) -> Vector2:
-	if offset <= 0:
-		return _points[0]
-	if offset >= length:
-		return _points[-1]
-		
-	var current_length: float = 0
-	for segment: Segment in segments:
-		if current_length + segment.length >= offset:
-			var segment_offset: float = offset - current_length
-			if segment is Line:
-				return segment.get_position_at_offset(segment_offset)
-			elif segment is Arc:
-				return segment.get_position_at_offset(segment_offset)
-		current_length += segment.length
-	
-	return _points[-1]
+
+# Get the points used to draw the dubin path. Do NOT use for progress tracking(since they are not evenly spaced)
+func get_points() -> Array[Vector2]:
+	return _points
+
+
+###############################################################################
+## END PUBLIC API
+###############################################################################
 
 
 ## Filter out segments that don't have any length; this pretty much only
 ## happens when it's a straight line
 # Filter out segments that are of 0 length, or if after filtering there are no
 # valid segments left, return null
-func filter_segments(_segments : Array[Segment]) -> Array[Segment]:
+func _filter_segments(_segments : Array[Segment]) -> Array[Segment]:
 
 	var filtered_segments: Array[Segment] = []
 	for segment: Segment in _segments:
-		if segment.length > EPSILON:
+		if segment.length > Utils.EPSILON:
 			filtered_segments.append(segment)
 	return filtered_segments
 
+func _calculate_points() -> void:
+	for segment_index: int in range(segments.size()):
+		var segment: Segment = segments[segment_index]
+		if segment is Line:
+			for point: Vector2 in segment.points:
+				_add_point_if_unique(point, segment_index)
+		elif segment is Arc:
+			for point: Vector2 in segment.points:
+				_add_point_if_unique(point, segment_index)
+
+## Prevents two of the same point from being added to the 
+## points array. This can happen on the boundary of two segments
+func _add_point_if_unique(point: Vector2, segment_index: int) -> void:
+	if _points.is_empty() or not _points[-1].is_equal_approx(point):
+		_points.append(point)
+		segment_index_for_point.append(segment_index)
+	else:
+		pass # For breakpointing
 
 class Line extends Segment:
 	var start: Vector2

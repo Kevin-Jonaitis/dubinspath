@@ -13,7 +13,6 @@ config_version=5
 config/name="DubinsPath"
 run/main_scene="uid://bn4jysu1gp0de"
 config/features=PackedStringArray("4.4", "Forward Plus")
-config/icon="res://icon.svg"
 
 [display]
 
@@ -23,3 +22,7 @@ window/stretch/mode="canvas_items"
 [dotnet]
 
 project/assembly_name="DubinsPath"
+
+[editor_plugins]
+
+enabled=PackedStringArray("res://addons/dubinspath/plugin.cfg")

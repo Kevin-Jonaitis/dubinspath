@@ -1,12 +1,10 @@
+# Primarily used to draw dubins paths. You can bypass this clasa and simply use DubinsPathMath.compute_dubins_paths if you don't need to draw anything
 extends Node2D
 class_name DubinsPath2D
 
 var drawableFunctionsToCallLater: Array[Callable] = []
 var shortest_path: DubinsPath
 var paths: Array[DubinsPath] = []
-
-## Use images here point names and thetas refererd to:
-## https://www.habrador.com/tutorials/unity-dubins-paths/2-basic-dubins-paths/
 
 func compute_dubin_paths(start_pos: Vector2, start_angle: float, end_pos: Vector2, end_angle: float, min_turn_radius: float) -> Array[DubinsPath]:
 	if start_pos == end_pos and Utils.check_angle_matches(start_angle,end_angle):
