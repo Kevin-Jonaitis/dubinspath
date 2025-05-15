@@ -2,7 +2,7 @@
 ## We also draw red/blue circles at the "tangents" of the start and end points, to visualize how to calculate the dubins path better.
 extends Node2D
 
-@onready var dubins_path: DubinsPath2D = $DubinsPath2D
+@onready var dubins_path_drawer: DubinsPathDrawer2D = $DubinsPathDrawer2D
 @onready var truck: Sprite2D = $Truck
 
 var start_mouse_drag: bool = false
@@ -12,14 +12,6 @@ var truck_progress: float = 0.0
 var truck_speed: float = 150
 var min_turn_radius: float = 70.0 # CHANGE THIS TO CHANGE THE TURNING RADIUS
 
-
-func _ready() -> void:
-	pass
-
-func _draw():
-	if start_mouse_drag:
-		var end_position: Vector2 = get_global_mouse_position()
-		draw_line(start_mouse_pos, end_position, Color.WHITE, 5) # This lines visualizes the "end" direction the truck will face
 
 func _input(event: InputEvent):
 	pass
@@ -46,20 +38,20 @@ func move_truck_to(pos: Vector2, end_truck_direction: float) -> void:
 	print("Truck Direction: ", current_truck_direction)
 	print("End Position: ", pos)
 	print("End Direction: ", end_truck_direction)
-	dubins_path.calculate_and_draw_paths(truck.position, current_truck_direction, pos, end_truck_direction, min_turn_radius, true)
+	dubins_path_drawer.calculate_and_draw_paths(truck.position, current_truck_direction, pos, end_truck_direction, min_turn_radius, true)
 	is_truck_moving = true
 	truck_progress = 0.0
 
 func _process(delta):
 	if (is_truck_moving):
-		var total_distance: float = dubins_path.shortest_path.length
+		var total_distance: float = dubins_path_drawer.shortest_path.length
 		truck_progress += truck_speed * delta
 		if (truck_progress > total_distance):
 			truck_progress = total_distance
 			is_truck_moving = false
-		var truck_location: Vector2 = dubins_path.shortest_path.get_position_at_offset(truck_progress)
+		var truck_location: Vector2 = dubins_path_drawer.shortest_path.get_position_at_offset(truck_progress)
 		truck.position = truck_location
-		var truck_rotation: float = dubins_path.shortest_path.get_angle_at_offset(truck_progress)
+		var truck_rotation: float = dubins_path_drawer.shortest_path.get_angle_at_offset(truck_progress)
 		truck.rotation = add_truck_rotation_offset(truck_rotation)
 	pass
 
@@ -71,3 +63,11 @@ func get_truck_direction() -> float:
 
 func add_truck_rotation_offset(truck_rotation: float) -> float:
 	return truck_rotation + PI/2
+
+func _ready() -> void:
+	pass
+
+func _draw():
+	if start_mouse_drag:
+		var end_position: Vector2 = get_global_mouse_position()
+		draw_line(start_mouse_pos, end_position, Color.WHITE, 5) # This lines visualizes the "end" direction the truck will face
