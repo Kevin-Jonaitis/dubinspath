@@ -1,16 +1,10 @@
-# Primarily used to draw dubins paths. You can bypass this clasa and simply use DubinsPathMath.compute_dubins_paths if you don't need to draw anything
+# Primarily used to draw dubins paths. You can bypass this clasa and simply use DubinsPathGenerator.compute_dubins_paths if you don't need to draw anything
 extends Node2D
-class_name DubinsPath2D
+class_name DubinsPathDrawer2D
 
 var drawableFunctionsToCallLater: Array[Callable] = []
 var shortest_path: DubinsPath
 var paths: Array[DubinsPath] = []
-
-func compute_dubin_paths(start_pos: Vector2, start_angle: float, end_pos: Vector2, end_angle: float, min_turn_radius: float) -> Array[DubinsPath]:
-	if start_pos == end_pos and Utils.check_angle_matches(start_angle,end_angle):
-		return []
-	return DubinsPathMath.compute_dubins_paths(start_pos, start_angle, end_pos, end_angle, min_turn_radius)
-
 
 func calculate_and_draw_paths(start_pos: Vector2, start_angle: float, end_pos: Vector2, end_angle: float, min_turn_radius: float, draw_paths: bool) -> bool:
 	# If the start and end are the same, we don't need to move at all. Short-circuit everything. The shortest
@@ -22,7 +16,7 @@ func calculate_and_draw_paths(start_pos: Vector2, start_angle: float, end_pos: V
 	if start_pos == end_pos and Utils.check_angle_matches(start_angle,end_angle):
 		clear_drawables()
 		return false
-	self.paths = DubinsPathMath.compute_dubins_paths(start_pos, start_angle, end_pos, end_angle, min_turn_radius)
+	self.paths = DubinsPathGenerator.compute_dubins_paths(start_pos, start_angle, end_pos, end_angle, min_turn_radius)
 	# Technically, we should never return a path size of 0. Dubins paths are always valid.
 	# The only time this really happens
 	# is if the starting point is also the ending point. Maybe the user wants to draw this
@@ -31,7 +25,7 @@ func calculate_and_draw_paths(start_pos: Vector2, start_angle: float, end_pos: V
 	if (paths.size() == 0):
 		print("NO PATHS FOUND")
 		return false
-	self.shortest_path = DubinsPathMath.get_shortest_dubin_path(paths)
+	self.shortest_path = DubinsPathGenerator.get_shortest_dubin_path(paths)
 	if (draw_paths):
 		draw_tangent_circles(start_pos, start_angle, end_pos, end_angle, min_turn_radius)
 		draw_dubin_paths()
@@ -60,8 +54,8 @@ func draw_path(path: DubinsPath, color: Color) -> void:
 # Function to draw two circles based on tangent, radius, and point
 func draw_tangent_circles(start_pos: Vector2, start_angle: float, end_pos: Vector2, end_angle: float, radius: float) -> void:
 
-	var circles_start: DubinsPathMath.TangentCircles = DubinsPathMath.get_perpendicular_circle_centers(start_pos, start_angle, radius)
-	var circles_end: DubinsPathMath.TangentCircles = DubinsPathMath.get_perpendicular_circle_centers(end_pos, end_angle, radius)
+	var circles_start: DubinsPathGenerator.TangentCircles = DubinsPathGenerator.get_perpendicular_circle_centers(start_pos, start_angle, radius)
+	var circles_end: DubinsPathGenerator.TangentCircles = DubinsPathGenerator.get_perpendicular_circle_centers(end_pos, end_angle, radius)
 
 	# Draw the circles
 	drawableFunctionsToCallLater.append(

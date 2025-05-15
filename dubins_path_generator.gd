@@ -1,10 +1,11 @@
 extends RefCounted
-class_name DubinsPathMath
+class_name DubinsPathGenerator
 
 const MIN_RADIUS: float = 0.0
 const POINTS: Array = []
 const CURVATURES: Array = []
 const PATH_TYPES: Array[String] = ["LSL", "RSR", "LSR", "RSL", "RLR", "LRL"]
+
 
 ## Use images here point names and thetas refererd to:
 ## https://www.habrador.com/tutorials/unity-dubins-paths/2-basic-dubins-paths/
@@ -29,26 +30,6 @@ class CircleInfo:
 		self.center_theta = center_theta_
 		self.theta = theta_
 
-## Fetches the center of the left and right circles
-## and the angles pointing from the center of the circle to point
-static func get_perpendicular_circle_centers(point: Vector2, angle: float, radius: float) -> TangentCircles:
-	# Calculate the perpendicular directions based on the angle in a left-handed system
-	var left_tangent_angle: float = angle + PI / 2  # Rotate 90 degrees clockwise
-	var right_tangent_angle: float = angle - PI / 2  # Rotate 90 degrees counterclockwise
-
-	# Calculate the tangent directions
-	var left_tangent: Vector2 = Vector2(cos(left_tangent_angle), sin(left_tangent_angle))
-	var right_tangent: Vector2 = Vector2(cos(right_tangent_angle), sin(right_tangent_angle))
-
-	# Calculate the centers of the circles
-	var left_circle_center: Vector2 = point - left_tangent * radius
-	var right_circle_center: Vector2 = point - right_tangent * radius
-
-	# Create and return the result
-	return TangentCircles.new(
-		CircleInfo.new(left_circle_center, left_tangent_angle, angle),
-		CircleInfo.new(right_circle_center, right_tangent_angle, angle)
-	)
 # Inputs:
 # start_pos: Vector2 - starting position (x, y)
 # start_dir: Vector2 - starting direction (unit vector)
@@ -69,6 +50,27 @@ static func compute_dubins_paths(start_pos: Vector2, start_angle: float, end_pos
 			continue
 		paths.append(path)
 	return paths
+	
+## Fetches the center of the left and right circles
+## and the angles pointing from the center of the circle to point
+static func get_perpendicular_circle_centers(point: Vector2, angle: float, radius: float) -> TangentCircles:
+	# Calculate the perpendicular directions based on the angle in a left-handed system
+	var left_tangent_angle: float = angle + PI / 2  # Rotate 90 degrees clockwise
+	var right_tangent_angle: float = angle - PI / 2  # Rotate 90 degrees counterclockwise
+
+	# Calculate the tangent directions
+	var left_tangent: Vector2 = Vector2(cos(left_tangent_angle), sin(left_tangent_angle))
+	var right_tangent: Vector2 = Vector2(cos(right_tangent_angle), sin(right_tangent_angle))
+
+	# Calculate the centers of the circles
+	var left_circle_center: Vector2 = point - left_tangent * radius
+	var right_circle_center: Vector2 = point - right_tangent * radius
+
+	# Create and return the result
+	return TangentCircles.new(
+		CircleInfo.new(left_circle_center, left_tangent_angle, angle),
+		CircleInfo.new(right_circle_center, right_tangent_angle, angle)
+	)
 
 static func get_shortest_dubin_path(paths: Array[DubinsPath]) -> DubinsPath:
 	var shortest_path: DubinsPath = null

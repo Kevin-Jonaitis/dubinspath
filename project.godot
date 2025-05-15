@@ -25,4 +25,4 @@ project/assembly_name="DubinsPath"
 
 [editor_plugins]
 
-enabled=PackedStringArray("res://addons/dubinspath/plugin.cfg")
+enabled=PackedStringArray()
